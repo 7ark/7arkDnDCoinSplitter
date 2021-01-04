@@ -13,78 +13,156 @@
 </head>
 
 <body>
-    <div>
 
-    </div>
-    <div class="pad">
-        <div>
-            <img class="background" src="images/PreviewImage1.jpg" />
-            <img class="background background-blurred" src="images/PreviewImage1.jpg" />
-            <div>
-                <img class="fillBackground" src="images/Background.jpg" />
-                <img class="center logo" src="images/Sunburn_Bay_Logo.png" />
-            </div>
-        </div>
-        <div class="intro center">
-            <h1 id="Entertainment" class="center intro-text intro-text-pressed">Entertainment</h1>
-            <h1 id="Location" class="center intro-text">Location & Tickets</h1>
-            <h1 id="AboutUs" class="center intro-text">About Us</h1>
-        </div>
-    </div>
+    <div class="intro center"><h1>7ark's D&D Coin Splitter</h1></div>
 
-    <div id="BigCarousel" class="main-display" data-role="carousel"
-         data-bullets="false"
-         data-controls="false"
-         data-auto-start="false"
-         data-width="60%"
-         data-height="2000px"
-         data-effect-func="easeInOutQuart"
-         data-duration="1000">
-        <div id="DisplayEntertainment" class="slide">
-            <div class="center main main-entertainment">
-                <h1 class="center bold shadow big">Site Under Construction</h1>
-                <br />
-                <h2 class="center bold shadow">Time Until Park Opening</h2>
-                <div class="container">
-                    <ul>
-                        <li><span id="days">00</span>days</li>
-                        <li><span id="hours">00</span>Hours</li>
-                        <li><span id="minutes">00</span>Minutes</li>
-                        <li><span id="seconds">00</span>Seconds</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
+    <form id="myForm">
+        Number of Players: <input type="number" id="players" name="players" min="2" value="4"><br>
+        Platnium: <input type="number" id="plat" name="plat" min="0" value="0"><br>
+        Gold: <input type="number" id="gold" name="gold" min="0" value="0"><br>
+        Silver: <input type="number" id="silver" name="silver" min="0" value="0"><br>
+        Copper: <input type="number" id="copper" name="copper" min="0" value="0"><br><br>
+        <input type="button" onclick="CalculateResults()" value="Submit">
+        <input type="button" onclick="Reset()" value="Reset">
+    </form>
 
-    <div class="outro center"></div>
+    <h1 id="resultText"></h1>
 
+    <ul id="finalList">
+        <li></li>
+    </ul>
 
     <script>
-        const second = 1000,
-            minute = second * 60,
-            hour = minute * 60,
-            day = hour * 24;
+        function Reset() {
+            document.getElementById("plat").value = 0;
+            document.getElementById("gold").value = 0;
+            document.getElementById("silver").value = 0;
+            document.getElementById("copper").value = 0;
+            document.getElementById("players").value = 4;
+        }
 
-        let countDown = new Date('Sep 28, 2020 16:00:00').getTime(),
-            x = setInterval(function () {
+        function CalculateResults() {
+            var playerCount = document.getElementById("players").value;
 
-                let now = new Date().getTime(),
-                    distance = countDown - now;
+            let cInput = new Coins(document.getElementById("plat").value, document.getElementById("gold").value, document.getElementById("silver").value, document.getElementById("copper").value, 0);
+            
+            let final = new Coins(0, 0, 0, 0, 0);
+            let remaining = new Coins(0, 0, 0, 0, 0);
 
-                document.getElementById('days').innerText = Math.floor(distance / (day)),
-                    document.getElementById('hours').innerText = Math.floor((distance % (day)) / (hour)),
-                    document.getElementById('minutes').innerText = Math.floor((distance % (hour)) / (minute)),
-                    document.getElementById('seconds').innerText = Math.floor((distance % (minute)) / second);
+            do {
+                var val = CreateSplit(playerCount, cInput);
 
-                //do something later when date is reached
-                //if (distance < 0) {
-                //  clearInterval(x);
-                //  'IT'S MY BIRTHDAY!;
-                //}
+                final.Copper += val.Copper;
+                final.Silver += val.Silver;
+                final.Gold += val.Gold;
+                final.Plat += val.Plat;
 
-            }, second)
+                remaining.Copper = val.Remaining;
+
+                cInput = remaining;
+            }
+            while (remaining.Copper > 10);
+            
+            var ul = document.getElementById("finalList");
+            ul.innerHTML = "";
+            
+            for (var i = 0; i < playerCount; i++)
+            {
+                var li = document.createElement("li");
+                li.appendChild(document.createTextNode("Player " + (i + 1) + ": " + final.Display()));
+                ul.appendChild(li);
+            }
+
+            if (remaining.Copper != 0) {
+                var li = document.createElement("li");
+                li.appendChild(document.createTextNode("Leftover Copper: " + remaining.Copper));
+                ul.appendChild(li);
+            }
+            
+            
+            document.getElementById("resultText").textContent = "Results";
+        }
+
+        function CreateSplit(playerCount, coinsInput) {
+            var totalInCopper = 0;
+
+            totalInCopper += 1000 * coinsInput.Plat;
+            totalInCopper += 100 * coinsInput.Gold;
+            totalInCopper += 10 * coinsInput.Silver;
+            totalInCopper += 1 * coinsInput.Copper;
+
+            var extra = 0;
+            var divided = totalInCopper / playerCount;
+            var split = Math.floor(totalInCopper / playerCount);
+
+            if (Math.floor(divided) - divided != 0) {
+                extra = totalInCopper % playerCount;
+            }
+
+            var level = 1;
+            while (split > 10) {
+                var leftover = 0;
+                var result = ToHigherValue(split);
+                split = result.HighReceived;
+                extra += (result.Leftover * playerCount) * level;
+
+                level *= 10;
+            }
+
+            return new Coins(Plat = level == 1000 ? split : 0, Gold = level == 100 ? split : 0, Silver = level == 10 ? split : 0, Copper = level == 1 ? split : 0, extra);
+        }
+
+        function ToHigherValue(coin) {
+            var divided = coin / 10;
+            var valueFinal = Math.floor(coin / 10);
+            var extra = 0;
+
+            if (Math.floor(divided) - divided != 0)
+            {
+                extra = coin % 10;
+            }
+
+            return new HigherValueResult(valueFinal, extra);
+        }
+
+        class HigherValueResult {
+            constructor(HighReceived, Leftover) {
+                this.HighReceived = HighReceived;
+                this.Leftover = Leftover;
+            }
+        }
+
+        class Coins {
+            constructor(Plat, Gold, Silver, Copper, Remaining) {
+                this.Plat = Plat;
+                this.Gold = Gold;
+                this.Silver = Silver;
+                this.Copper = Copper;
+                this.Remaining = Remaining;
+            }
+
+            Display() {
+                var result = "";
+                if (this.Plat != 0) {
+                    result += this.Plat + " Platnium ";
+                }
+                if (this.Gold != 0) {
+                    result += this.Gold + " Gold ";
+                }
+                if (this.Silver != 0) {
+                    result += this.Silver + " Silver ";
+                }
+                if (this.Copper != 0) {
+                    result += this.Copper + " Copper ";
+                }
+                if (result == "") {
+                    result = "Nothing!";
+                }
+                return result;
+            }
+        }
     </script>
+
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
