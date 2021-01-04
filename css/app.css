@@ -52,6 +52,10 @@ h1, h2, h4 {
     margin-left: 40%;
 }
 
+.smallBox{
+    width: 80px;
+}
+
 .button{
     width: 200px;
     height: 150px;

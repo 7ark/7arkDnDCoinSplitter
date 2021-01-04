@@ -22,12 +22,14 @@
         Gold: <input type="number" id="gold" name="gold" min="0" value="0"><br>
         Silver: <input type="number" id="silver" name="silver" min="0" value="0"><br>
         Copper: <input type="number" id="copper" name="copper" min="0" value="0"><br><br>
+        <h3>Extra Settings</h3><br>
         Highest Coin Type: <select name="coinType" id="coinType">
-            <option value="1000">Platinum</option>
-            <option value="100">Gold</option>
-            <option value="10">Silver</option>
-            <option value="1">Copper</option>
-        </select><br><br>
+            <option value="3">Platinum</option>
+            <option value="2">Gold</option>
+            <option value="1">Silver</option>
+            <option value="0">Copper</option>
+        </select><br>
+        Conversion Rate: <input onchange="UpdateConversionDisplay()" class="smallBox" type="number" id="conversionRate" name="conversionRate" min="1" value="10"><para id="conversionDisplay">1 Gold == 10 Silver</para><br><br>
         <input type="button" onclick="CalculateResults()" value="Submit">
         <input type="button" onclick="Reset()" value="Reset">
     </form>
@@ -39,6 +41,10 @@
     </ul>
 
     <script>
+        function UpdateConversionDisplay() {
+            document.getElementById("conversionDisplay").textContent = "1 Gold == " + document.getElementById("conversionRate").value + " Silver";
+        }
+
         function Reset() {
             document.getElementById("plat").value = 0;
             document.getElementById("gold").value = 0;
@@ -55,8 +61,12 @@
             let final = new Coins(0, 0, 0, 0, 0);
             let remaining = new Coins(0, 0, 0, 0, 0);
 
+            var conversionRate = document.getElementById("conversionRate").value;
+
+            var highestCoinType = Math.pow(conversionRate, document.getElementById("coinType").value);
+
             do {
-                var val = CreateSplit(playerCount, cInput, document.getElementById("coinType").value);
+                var val = CreateSplit(playerCount, cInput, highestCoinType, conversionRate);
 
                 final.Copper += val.Copper;
                 final.Silver += val.Silver;
@@ -67,7 +77,7 @@
 
                 cInput = remaining;
             }
-            while (remaining.Copper >= 10 && remaining.Copper >= playerCount);
+            while (remaining.Copper >= conversionRate && remaining.Copper >= playerCount);
             
             var ul = document.getElementById("finalList");
             ul.innerHTML = "";
@@ -89,12 +99,12 @@
             document.getElementById("resultText").textContent = "Results";
         }
 
-        function CreateSplit(playerCount, coinsInput, highestValue) {
+        function CreateSplit(playerCount, coinsInput, highestValue, conversionRate) {
             var totalInCopper = 0;
 
-            totalInCopper += 1000 * coinsInput.Plat;
-            totalInCopper += 100 * coinsInput.Gold;
-            totalInCopper += 10 * coinsInput.Silver;
+            totalInCopper += Math.pow(conversionRate, 3) * coinsInput.Plat;
+            totalInCopper += Math.pow(conversionRate, 2) * coinsInput.Gold;
+            totalInCopper += conversionRate * coinsInput.Silver;
             totalInCopper += 1 * coinsInput.Copper;
 
             var extra = 0;
@@ -106,26 +116,26 @@
             }
 
             var level = 1;
-            while (split >= 10 && level < highestValue) {
+            while (split >= conversionRate && level < highestValue) {
                 var leftover = 0;
-                var result = ToHigherValue(split);
+                var result = ToHigherValue(split, conversionRate);
                 split = result.HighReceived;
                 extra += (result.Leftover * playerCount) * level;
 
-                level *= 10;
+                level *= conversionRate;
             }
 
-            return new Coins(Plat = level == 1000 ? split : 0, Gold = level == 100 ? split : 0, Silver = level == 10 ? split : 0, Copper = level == 1 ? split : 0, extra);
+            return new Coins(Plat = level == Math.pow(conversionRate, 3) ? split : 0, Gold = level == Math.pow(conversionRate, 2) ? split : 0, Silver = level == conversionRate ? split : 0, Copper = level == 1 ? split : 0, extra);
         }
 
-        function ToHigherValue(coin) {
-            var divided = coin / 10;
-            var valueFinal = Math.floor(coin / 10);
+        function ToHigherValue(coin, conversionRate) {
+            var divided = coin / conversionRate;
+            var valueFinal = Math.floor(coin / conversionRate);
             var extra = 0;
 
             if (Math.floor(divided) - divided != 0)
             {
-                extra = coin % 10;
+                extra = coin % conversionRate;
             }
 
             return new HigherValueResult(valueFinal, extra);
