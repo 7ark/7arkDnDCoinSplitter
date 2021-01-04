@@ -22,6 +22,12 @@
         Gold: <input type="number" id="gold" name="gold" min="0" value="0"><br>
         Silver: <input type="number" id="silver" name="silver" min="0" value="0"><br>
         Copper: <input type="number" id="copper" name="copper" min="0" value="0"><br><br>
+        Highest Coin Type: <select name="coinType" id="coinType">
+            <option value="1000">Platinum</option>
+            <option value="100">Gold</option>
+            <option value="10">Silver</option>
+            <option value="1">Copper</option>
+        </select><br><br>
         <input type="button" onclick="CalculateResults()" value="Submit">
         <input type="button" onclick="Reset()" value="Reset">
     </form>
@@ -50,7 +56,7 @@
             let remaining = new Coins(0, 0, 0, 0, 0);
 
             do {
-                var val = CreateSplit(playerCount, cInput);
+                var val = CreateSplit(playerCount, cInput, document.getElementById("coinType").value);
 
                 final.Copper += val.Copper;
                 final.Silver += val.Silver;
@@ -83,7 +89,7 @@
             document.getElementById("resultText").textContent = "Results";
         }
 
-        function CreateSplit(playerCount, coinsInput) {
+        function CreateSplit(playerCount, coinsInput, highestValue) {
             var totalInCopper = 0;
 
             totalInCopper += 1000 * coinsInput.Plat;
@@ -100,7 +106,7 @@
             }
 
             var level = 1;
-            while (split >= 10 && level < 1000) {
+            while (split >= 10 && level < highestValue) {
                 var leftover = 0;
                 var result = ToHigherValue(split);
                 split = result.HighReceived;
