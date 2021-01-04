@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Sunburn Bay</title>
+    <title>7ark's D&D Coin Splitter</title>
     <link href="css/app.css" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Ceviche+One&family=Ranchers&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.metroui.org.ua/v4/css/metro-all.min.css">
@@ -61,7 +61,7 @@
 
                 cInput = remaining;
             }
-            while (remaining.Copper > 10);
+            while (remaining.Copper >= 10);
             
             var ul = document.getElementById("finalList");
             ul.innerHTML = "";
@@ -100,7 +100,7 @@
             }
 
             var level = 1;
-            while (split > 10) {
+            while (split >= 10) {
                 var leftover = 0;
                 var result = ToHigherValue(split);
                 split = result.HighReceived;
